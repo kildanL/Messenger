@@ -12,9 +12,15 @@ export const Main = () => {
 
     const [values, setValues] = useState({ [NAME]: "", [ROOM]: "" });
 
-    function handleChange({ target: { value, name } }) {
-        setValues({ ...value, [name]: value });
-    }
+    const handleChange = ({ target: { value, name } }) => {
+        setValues({ ...values, [name]: value });
+    };
+
+    const handleClick = (e) => {
+        const isDisabled = Object.values(values).some((v) => !v);
+
+        if (isDisabled) e.preventDefault();
+    };
 
     return (
         <div className={st.wrap}>
@@ -27,28 +33,29 @@ export const Main = () => {
                             type="text"
                             name="name"
                             value={values[NAME]}
-                            placeholder="Введите никнейм"
+                            placeholder="Имя"
                             className={st.input}
                             onChange={handleChange}
                             autoComplete="off"
                             required
-                        ></input>
+                        />
                     </div>
                     <div className={st.group}>
                         <input
                             type="text"
                             name="room"
+                            placeholder="Введите имя комнаты"
                             value={values[ROOM]}
-                            placeholder="Введите название комнаты"
                             className={st.input}
                             onChange={handleChange}
                             autoComplete="off"
                             required
-                        ></input>
+                        />
                     </div>
 
                     <Link
                         className={st.group}
+                        onClick={handleClick}
                         to={`/chat?name=${values[NAME]}&room=${values[ROOM]}`}
                     >
                         <button type="submit" className={st.button}>
