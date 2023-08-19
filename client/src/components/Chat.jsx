@@ -58,9 +58,9 @@ export const Chat = () => {
         <div className={st.wrap}>
             <div className={st.header}>
                 <div className={st.title}>{params.room}</div>
-                <div className={st.users}>{users} users in this room</div>
+                <div className={st.users}>{users} пользователей в комнате</div>
                 <button className={st.left} onClick={leftRoom}>
-                    Left the room
+                    Покинуть комнату
                 </button>
             </div>
 
@@ -73,7 +73,7 @@ export const Chat = () => {
                     <input
                         type="text"
                         name="message"
-                        placeholder="What do you want to say?"
+                        placeholder="Напиши что-нибудь..."
                         value={message}
                         onChange={handleChange}
                         autoComplete="off"
@@ -98,7 +98,7 @@ export const Chat = () => {
                     <input
                         type="submit"
                         onSubmit={handleSubmit}
-                        value="Send a message"
+                        value="Отправить сообщение"
                     />
                 </div>
             </form>
