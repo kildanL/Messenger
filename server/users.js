@@ -20,4 +20,6 @@ const addUser = (user) => {
     return { isExist: !!isExist, user: currentUser };
 };
 
-module.exports = { addUser, findUser };
+const getRoomUsers = (room) => users.filter((user) => user.room === room);
+
+module.exports = { addUser, findUser, getRoomUsers };

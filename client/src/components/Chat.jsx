@@ -11,9 +11,10 @@ const socket = io.connect("http://localhost:5000");
 export const Chat = () => {
     const { search } = useLocation();
     const [params, setParams] = useState({ room: "", name: "" });
-    const [state, setState] = useState([]);
+    const [data, setData] = useState([]);
     const [message, setMessage] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const [users, setUsers] = useState(0);
 
     useEffect(() => {
         const searchParams = Object.fromEntries(new URLSearchParams(search));
@@ -23,7 +24,14 @@ export const Chat = () => {
 
     useEffect(() => {
         socket.on("message", ({ data }) => {
-            setState((_state) => [..._state, data]);
+            setData((_data) => [..._data, data]);
+            console.log(data);
+        });
+    }, []);
+
+    useEffect(() => {
+        socket.on("joinRoom", ({ data: { users } }) => {
+            setUsers(users.length);
             console.log(data);
         });
     }, []);
@@ -48,13 +56,13 @@ export const Chat = () => {
         <div className={st.wrap}>
             <div className={st.header}>
                 <div className={st.title}>{params.room}</div>
-                <div className={st.users}>0 users in this room</div>
+                <div className={st.users}>{users} пользователей в комнате</div>
                 <button className={st.left} onClick={leftRoom}>
                     left the room
                 </button>
             </div>
             <div className={st.messages}>
-                <Messages messages={state} name={params.name} />
+                <Messages messages={data} name={params.name} />
             </div>
 
             <form className={st.form} onSubmit={sendMessage}>

@@ -5,7 +5,7 @@ const cors = require("cors");
 const app = express();
 
 const route = require("./route");
-const { addUser, findUser } = require("./users");
+const { addUser, findUser, getRoomUsers } = require("./users");
 
 app.use(cors({ origin: "*" }));
 app.use(route);
@@ -41,6 +41,10 @@ io.on("connection", (socket) => {
                 user: { name: "Admin" },
                 message: `${user.name} присоединился`,
             },
+        });
+
+        io.to(user.room).emit("joinRoom", {
+            data: { users: getRoomUsers(user.room) },
         });
     });
 
