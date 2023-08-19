@@ -57,7 +57,7 @@ export const Chat = () => {
                 <Messages messages={state} name={params.name} />
             </div>
 
-            <form className={st.form}>
+            <form className={st.form} onSubmit={sendMessage}>
                 <div className={st.input}>
                     <input
                         type="text"

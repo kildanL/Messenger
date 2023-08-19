@@ -5,7 +5,7 @@ const cors = require("cors");
 const app = express();
 
 const route = require("./route");
-const { addUser } = require("./users");
+const { addUser, findUser } = require("./users");
 
 app.use(cors({ origin: "*" }));
 app.use(route);
@@ -23,12 +23,16 @@ io.on("connection", (socket) => {
     socket.on("join", ({ name, room }) => {
         socket.join(room);
 
-        const { user } = addUser({ name, room });
+        const { user, isExist } = addUser({ name, room });
+
+        const userMessage = isExist
+            ? `Рад снова видеть ${user.name}`
+            : `Привет ${user.name}!`;
 
         socket.emit("message", {
             data: {
                 user: { name: "Admin" },
-                message: `Привет ${user.name}`,
+                message: userMessage,
             },
         });
 
@@ -38,6 +42,14 @@ io.on("connection", (socket) => {
                 message: `${user.name} присоединился`,
             },
         });
+    });
+
+    io.on("sendMessage", ({ message, params }) => {
+        const user = findUser(params);
+
+        if (user) {
+            io.to(user.room).emit("message", { data: { user, message } });
+        }
     });
 
     io.on("disconnect", () => {
