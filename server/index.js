@@ -5,7 +5,7 @@ const cors = require("cors");
 const app = express();
 
 const route = require("./route");
-const { addUser, findUser, getRoomUsers } = require("./users");
+const { addUser, findUser, getRoomUsers, removeUser } = require("./users");
 
 app.use(cors({ origin: "*" }));
 app.use(route);
@@ -27,13 +27,10 @@ io.on("connection", (socket) => {
 
         const userMessage = isExist
             ? `Рад снова видеть ${user.name}`
-            : `Привет ${user.name}!`;
+            : `Привет ${user.name}`;
 
         socket.emit("message", {
-            data: {
-                user: { name: "Admin" },
-                message: userMessage,
-            },
+            data: { user: { name: "Admin" }, message: userMessage },
         });
 
         socket.broadcast.to(user.room).emit("message", {
@@ -43,16 +40,35 @@ io.on("connection", (socket) => {
             },
         });
 
-        io.to(user.room).emit("joinRoom", {
+        io.to(user.room).emit("room", {
             data: { users: getRoomUsers(user.room) },
         });
     });
 
-    io.on("sendMessage", ({ message, params }) => {
+    socket.on("sendMessage", ({ message, params }) => {
         const user = findUser(params);
 
         if (user) {
             io.to(user.room).emit("message", { data: { user, message } });
+        }
+    });
+
+    socket.on("leftRoom", ({ params }) => {
+        const user = removeUser(params);
+
+        if (user) {
+            const { room, name } = user;
+
+            io.to(room).emit("message", {
+                data: {
+                    user: { name: "Admin" },
+                    message: `${name} вышел из комнаты`,
+                },
+            });
+
+            io.to(room).emit("room", {
+                data: { users: getRoomUsers(room) },
+            });
         }
     });
 
@@ -62,5 +78,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(5000, () => {
-    console.log("server is running!");
+    console.log("Server is running");
 });

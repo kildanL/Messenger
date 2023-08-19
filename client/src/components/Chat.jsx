@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import st from "../styles/Chat.module.css";
 import iconEmoj from "../images/emoji.svg";
 import EmojiPicker from "emoji-picker-react";
@@ -10,10 +10,11 @@ const socket = io.connect("http://localhost:5000");
 
 export const Chat = () => {
     const { search } = useLocation();
-    const [params, setParams] = useState({ room: "", name: "" });
-    const [data, setData] = useState([]);
+    const navigate = useNavigate();
+    const [params, setParams] = useState({ room: "", user: "" });
+    const [state, setState] = useState([]);
     const [message, setMessage] = useState("");
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setOpen] = useState(false);
     const [users, setUsers] = useState(0);
 
     useEffect(() => {
@@ -24,55 +25,57 @@ export const Chat = () => {
 
     useEffect(() => {
         socket.on("message", ({ data }) => {
-            setData((_data) => [..._data, data]);
-            console.log(data);
+            setState((_state) => [..._state, data]);
         });
     }, []);
 
     useEffect(() => {
-        socket.on("joinRoom", ({ data: { users } }) => {
+        socket.on("room", ({ data: { users } }) => {
             setUsers(users.length);
-            console.log(data);
         });
     }, []);
 
-    const leftRoom = () => {};
-    const writeMessage = ({ target: { value } }) => {
-        setMessage(value);
+    const leftRoom = () => {
+        socket.emit("leftRoom", { params });
+        navigate("/");
     };
-    const onEmojiClick = ({ emoji }) => {
-        setMessage(`${message} ${emoji}`);
-    };
-    const sendMessage = (e) => {
+
+    const handleChange = ({ target: { value } }) => setMessage(value);
+
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!message) return;
+
         socket.emit("sendMessage", { message, params });
 
         setMessage("");
     };
 
+    const onEmojiClick = ({ emoji }) => setMessage(`${message} ${emoji}`);
+
     return (
         <div className={st.wrap}>
             <div className={st.header}>
                 <div className={st.title}>{params.room}</div>
-                <div className={st.users}>{users} пользователей в комнате</div>
+                <div className={st.users}>{users} users in this room</div>
                 <button className={st.left} onClick={leftRoom}>
-                    left the room
+                    Left the room
                 </button>
             </div>
+
             <div className={st.messages}>
-                <Messages messages={data} name={params.name} />
+                <Messages messages={state} name={params.name} />
             </div>
 
-            <form className={st.form} onSubmit={sendMessage}>
+            <form className={st.form} onSubmit={handleSubmit}>
                 <div className={st.input}>
                     <input
                         type="text"
                         name="message"
+                        placeholder="What do you want to say?"
                         value={message}
-                        placeholder="Напиши что-нибудь"
-                        onChange={writeMessage}
+                        onChange={handleChange}
                         autoComplete="off"
                         required
                     />
@@ -80,8 +83,8 @@ export const Chat = () => {
                 <div className={st.emoji}>
                     <img
                         src={iconEmoj}
-                        alt="icon emoji"
-                        onClick={() => setIsOpen((prev) => !prev)}
+                        alt=""
+                        onClick={() => setOpen(!isOpen)}
                     />
 
                     {isOpen && (
@@ -94,9 +97,9 @@ export const Chat = () => {
                 <div className={st.button}>
                     <input
                         type="submit"
-                        onSubmit={sendMessage}
-                        value="Отправить сообщение"
-                    ></input>
+                        onSubmit={handleSubmit}
+                        value="Send a message"
+                    />
                 </div>
             </form>
         </div>
