@@ -19,9 +19,10 @@
 
 <!-- ![Screen1](./assets/Screen1.jpg) -->
 <p align=center>
-<img src='./assets/Screen1.png'>
+<img src='./client/assets/Screen1.png'>
 
-<img src='./assets/Screen2.png'>
+<img src='./client/assets/Screen2.png'>
 
-<img src='./assets/Screen3.png'>
+<img src='./client/assets/Screen3.png'>
+
 </p>
