@@ -8,6 +8,8 @@
 -   Socket-io
 -   React
 -   React-router-dom
+-   Деплой сервер части на Render
+-   Деплой клиентской части на Vercel
 
 ## Функции
 
